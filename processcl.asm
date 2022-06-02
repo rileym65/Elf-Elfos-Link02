@@ -179,12 +179,13 @@ no_5:          glo      re             ; recover byte
                lbz      no_5a          ; jump if so
 lib_loop:      lda      ra             ; move past any spaces
                smi      32
-               lbnz     lib_loop
+               lbz      lib_loop
                dec      ra             ; move back to non-space
                mov      rf,buffer2     ; point to buffer
                ldi      0              ; clear character count
                plo      rc
 lib_nmlp:      lda      ra             ; get byte from cl
+               plo      re             ; preserve character
                lbz      lib_nmdn       ; jump if terminator found
                smi      32             ; check for space
                lbz      lib_nmdn       ; done with name if space

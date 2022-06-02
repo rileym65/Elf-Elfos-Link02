@@ -97,11 +97,15 @@ loop:          mov      rf,buffer      ; where to read line
                mov      rd,fildes1     ; pointer to input fildes
                call     readln         ; read next line of input
                lbdf     eof            ; jump if end of file found
+               mov      rf,buffer
+               call7    load_d         ; see if load module is on
+               dw       loadmodule
+               lbz      checkproc      ; procs only if loadmodule is false
                
 ; ++++++++++++++++++++++++++
 ; +++++ Check for .big +++++
 ; ++++++++++++++++++++++++++
-               mov      rf,buffer      ; point to input
+fullscan:      mov      rf,buffer      ; point to input
                ldn      rf             ; see if . directive
                smi      '.'
                lbnz     next_5         ; jump if not directive
@@ -662,11 +666,11 @@ noproc_12:     mov      rf,buffer2     ; point to reference name
 ; ++++++++++++++++++++++++++++++
 next_13:       ldn      rf             ; get first character of line
                smi      '\'            ; check for unknown high symbol marker
-               lbnz     next_14        ; jump if not
+               lbnz     checkproc      ; jump if not
                inc      rf             ; move past '\'
                call7    load_d         ; need to see if in module
                dw       loadmodule
-               lbz      next_14        ; jump if not
+               lbz      checkproc      ; jump if not
                mov      rd,buffer2     ; need to copy symbol name
 loop_13:       lda      rf             ; get byte from name
                str      rd             ; write to buffer
@@ -701,7 +705,7 @@ noproc_13:     mov      rf,buffer2     ; point to reference name
 ; ++++++++++++++++++++++++++++++
 ; +++++ Check for { marker +++++
 ; ++++++++++++++++++++++++++++++
-next_14:       ldn      rf             ; get first character of line
+checkproc:     ldn      rf             ; get first character of line
                smi      '{'            ; check for beginning of proc marker
                lbnz     next_15        ; jump if not
                inc      rf             ; move past '{'
@@ -782,7 +786,8 @@ next_15:       ldn      rf             ; get first character of line
 ; ++++++++++++++++++++++++++++++++++++++
 ; +++++ Unknown marker encountered +++++
 ; ++++++++++++++++++++++++++++++++++++++
-next_16:       call     o_inmsg        ; print error message
+next_16:       lbr      loop           ; ignore unknown lines
+               call     o_inmsg        ; print error message
                db       'Error: Unknown marker: ',0
                ldn      rf             ; get marker
                call     o_type         ; output it

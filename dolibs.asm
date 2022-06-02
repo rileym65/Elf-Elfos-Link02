@@ -12,6 +12,7 @@
                extrn    libscan
                extrn    load_rf
                extrn    loadfile
+               extrn    loadmodule
                extrn    refcount
                extrn    resolved
                extrn    set_byte
@@ -24,6 +25,9 @@ loop:          ldn      rf             ; check for end of table
                call7    set_byte       ; set to library scan
                dw       libscan
                db       0ffh
+               call7    set_byte       ; turn off load modules
+               dw       loadmodule
+               db       0
                call     loadfile       ; load the file
                lbdf     fileerror      ; jump if error occurred
                pop      rf
