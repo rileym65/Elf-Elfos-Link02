@@ -24,7 +24,7 @@
                extrn    startaddress
 
                org      02000h
-               br       start
+begin:         br       start
                eever
                db       'by Michael H. Riley',0
 
@@ -200,8 +200,9 @@ store_ra:      lda      r3             ; get address
 ; ***** Returns: DF=1 - matched  *****
 ; *****          DF=0 - no match *****
 ; ************************************
-cmp:           str      r2
-               lda      r6
+cmp:           glo      re
+               str      r2
+               lda      r3
                sm
                bnz      cmpno
                ldn      r2
@@ -216,7 +217,7 @@ cmpno:         ldn      r2
 ; ********************************************************
 start:         call     o_inmsg        ; display startup message
                db       'Link/02 v1.0',10,13
-               db       'By Machel H. Riley',10,13,10,13,0
+               db       'By Michael H. Riley',10,13,10,13,0
                push     ra             ; save CL arguments
                call     setup          ; setup everything
                pop      ra
@@ -251,8 +252,9 @@ outnmlp:       lda      rf             ; need either zero or .
                lbz      outnmdn        ; jump if end found
                call7    cmp
                db       '.'
-               lbnz     outnmlp        ; loop until found
-outnmdn:       call7    load_d         ; get output mode
+               lbnf     outnmlp        ; loop until found
+outnmdn:       dec      rf             ; move back to terminator or .
+               call7    load_d         ; get output mode
                dw       outmode
                call7    cmp            ; binary mode?
                db       1
@@ -264,7 +266,7 @@ outnmdn:       call7    load_d         ; get output mode
                db       5
                lbdf     outintel       ; jump if so
                call     append         ; append .prg extension
-               db       '.prg',0
+               db       '.rcs',0
                call     outputrcs      ; write output as RCS hex
                lbr      donefile       ; done with output file
 outbin:        call     append         ; append .bin
@@ -284,6 +286,8 @@ donefile:      call     o_inmsg        ; write message
                call7    load_ra        ; get lowest address
                dw       lowest
                call     outhex4        ; convert to ascii
+               ldi      0              ; write terminator
+               str      r9
                mov      rf,buffer      ; and display it
                call     o_msg
                call     crlf
@@ -293,6 +297,8 @@ donefile:      call     o_inmsg        ; write message
                call7    load_ra
                dw       highest
                call     outhex4
+               ldi      0              ; write terminator
+               str      r9
                mov      rf,buffer
                call     o_msg
                call     crlf
@@ -310,6 +316,8 @@ showstart:     call     o_inmsg        ; display message
                call7    load_ra
                dw       startaddress
                call     outhex4
+               ldi      0              ; write terminator
+               str      r9
                mov      rf,buffer
                call     o_msg
                call     crlf
@@ -325,6 +333,8 @@ append:        lda      r6             ; get byte from source
                inc      rf
                lbnz     append         ; loop until terminator copied
                rtn                     ; then return
+
+               end      begin
 
                public   cmp
                public   microint

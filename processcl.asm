@@ -17,6 +17,7 @@
                extrn    objcount
                extrn    outmode
                extrn    outname
+               extrn    readcontrol
                extrn    set_byte
                extrn    showsymbols
                extrn    store_rf
@@ -74,8 +75,30 @@ fileerr:       call     o_inmsg        ; display error
                db       'Errors during link.  Aborting output',10,13,0
                lbr      o_wrmboot      ; return to Elf/OS
 
-control:
-
+; ********************************
+; ***** Process control file *****
+; ********************************
+control:       inc      ra             ; move past '@' symbol
+               mov      rf,buffer      ; otherwise file to be processed
+               ldi      0              ; character counter
+               plo      rc
+ctrlnmlp:      lda      ra             ; get next byte from CL
+               plo      re             ; keep a copy
+               lbz      ctrlnmdn       ; jump if terminator found
+               smi      32             ; check for space
+               lbz      ctrlnmdn       ; name is done with a space
+               glo      re             ; recover character
+               str      rf             ; write to buffer
+               inc      rf
+               inc      rc             ; increment character count
+               lbr      ctrlnmlp       ; loop until name copied
+ctrlnmdn:      ldi      0              ; terminate name
+               str      rf
+               push     ra             ; save comand line position
+               mov      rf,buffer      ; point to filename
+               call     readcontrol    ; read control file
+               pop      ra             ; recover position
+               lbr      loop           ; process any additional args
 
 ; ***************************************
 ; ***** Process command line switch *****
@@ -193,12 +216,13 @@ no_6:          glo      re             ; recover byte
                lbnz     loop           ; process next arg
 obj_loop:      lda      ra             ; move past any spaces
                smi      32
-               lbnz     obj_loop
+               lbz      obj_loop
                dec      ra             ; move back to non-space
                mov      rf,outname     ; point to output name
                ldi      0              ; clear character count
                plo      rc
 obj_nmlp:      lda      ra             ; get byte from cl
+               plo      re             ; save character
                lbz      obj_nmdn       ; jump if terminator found
                smi      32             ; check for space
                lbz      obj_nmdn       ; done with name if space

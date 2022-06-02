@@ -9,8 +9,11 @@
 
                extrn    setvram
 
+               plo      re             ; save value during pushes
                push     ra             ; save consumed registers
                push     rf
+               push     r7
+               glo      re
                stxd                    ; save value
                call     setvram        ; setup VRAM for write
                glo      rd             ; move to fildes flags byts
@@ -25,6 +28,7 @@
                irx                     ; recover value to write
                ldx
                str      ra             ; write to VRAM
+               pop      r7
                pop      rf             ; recover consumed registers
                pop      ra
                rtn                     ; then return to caller

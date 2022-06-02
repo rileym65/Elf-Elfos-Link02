@@ -52,7 +52,7 @@ OBJS = \
 .SUFFIXES: .asm .prg
 
 link02.bin: $(OBJS) link02.link
-	link02 @link02.link
+	link02 -s @link02.link
 
 .asm.prg:
 	asm02 -l -L $<

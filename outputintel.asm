@@ -18,6 +18,7 @@
                extrn    load_ra
                extrn    load_rb
                extrn    lowest
+               extrn    microint
                extrn    outhex2
                extrn    outhex4
                extrn    outname
@@ -26,7 +27,6 @@
                extrn    readmemb
                extrn    startaddress
 
-               push     r7             ; save consumed registers
                mov      rd,fildes1     ; point to general fildes
                mov      rf,outname     ; point to output filename
                ldi      3              ; create/truncate file
@@ -38,7 +38,8 @@
                call     o_inmsg        ; display error message
                db       'Error: Could not open output file',10,13,0
                lbr      o_wrmboot      ; and return to Elf/OS
-opened:        call7    load_rb        ; need highest address
+opened:        mov      r7,microint
+               call7    load_rb        ; need highest address
                dw       highest
                call7    load_ra        ; need lowest address
                dw       lowest
@@ -101,7 +102,7 @@ endloop:       inc      ra             ; increment address
                ghi      rb             ; check high byte as well
                lbnz     loop
                glo      rc             ; have bytes been written to final line
-               lbnz     noendline      ; jump if not
+               lbz      noendline      ; jump if not
                call     writeline      ; write final line
 noendline:     call7    load_ra        ; get start address
                dw       startaddress
@@ -139,7 +140,7 @@ writeline:     glo      rc             ; get byte count
                ldi      13
                str      r9
                inc      r9
-               ghi      rc             ; get byte count
+               glo      rc             ; get byte count
                plo      re             ; set aside for now
                glo      r9             ; compute line size
                smi      buffer.0

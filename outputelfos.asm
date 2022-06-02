@@ -15,10 +15,10 @@
                extrn    load_ra
                extrn    load_rb
                extrn    lowest
+               extrn    microint
                extrn    outname
                extrn    startaddress
 
-               push     r7             ; save consumed registers
                mov      rd,fildes1     ; point to general fildes
                mov      rf,outname     ; point to output filename
                ldi      3              ; create/truncate file
@@ -30,7 +30,8 @@
                call     o_inmsg        ; display error message
                db       'Error: Could not open output file',10,13,0
                lbr      o_wrmboot      ; and return to Elf/OS
-opened:        mov      rf,buffer      ; point to output buffer
+opened:        mov      r7,microint
+               mov      rf,buffer      ; point to output buffer
                call7    load_ra        ; get load address
                dw       lowest       
                ghi      ra             ; and write to buffer
@@ -48,6 +49,7 @@ opened:        mov      rf,buffer      ; point to output buffer
                plo      rb
                ghi      ra
                str      r2
+               ghi      rb
                smb
                phi      rb
                inc      rb             ; rb now has byte count

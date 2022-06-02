@@ -32,6 +32,7 @@
                extrn    load_rd
                extrn    loadmodule
                extrn    lowest
+               extrn    microint
                extrn    offset
                extrn    outhex4
                extrn    readln
@@ -77,7 +78,8 @@ noprint:       call7    set_byte       ; clear inproc
                mov      rd,fildes1     ; point to fildes
                mov      r7,0           ; no special flags
                call     o_open         ; call Elf/OS to open file
-               lbnf     loop           ; jump if no error occured
+               mov      r7,microint    ; reset R7
+               lbnf     opened         ; jump if no error occured
                call     o_inmsg        ; display error
                db       'Could not open input file: ',0
                pop      rf             ; recover filename
@@ -85,6 +87,8 @@ noprint:       call7    set_byte       ; clear inproc
                call     crlf           ; display crlf
                smi      0              ; indicate file error
                rtn                     ; return to caller
+opened:        irx                     ; remove RF from stack
+               irx
 
 ; ++++++++++++++++++++++++++
 ; +++++ Main file loop +++++
@@ -93,20 +97,14 @@ loop:          mov      rf,buffer      ; where to read line
                mov      rd,fildes1     ; pointer to input fildes
                call     readln         ; read next line of input
                lbdf     eof            ; jump if end of file found
-
-
-; +++++++++++++++++++++++++++++++++++++++++
-; +++++ File has been completely read +++++
-; +++++++++++++++++++++++++++++++++++++++++
-eof:           mov      rd,fildes1     ; point to fildes
-               call     o_close        ; close the file
-               adi      0              ; indicate successful read
-               rtn                     ; and return to caller
-
+               
 ; ++++++++++++++++++++++++++
 ; +++++ Check for .big +++++
 ; ++++++++++++++++++++++++++
                mov      rf,buffer      ; point to input
+               ldn      rf             ; see if . directive
+               smi      '.'
+               lbnz     next_5         ; jump if not directive
                mov      rd,lblbig      ; point to .big text
                mov      rc,4           ; 4 characters to compare
                call     strncmp        ; perform cmpare
@@ -410,25 +408,26 @@ dataloop:      call     trim           ; move past any white space
 notused:       call     writemap       ; mark address as used
                call7    load_rd        ; get lowest address
                dw       lowest
-               glo      ra             ; subtract address from lowest
-               str      r2
-               glo      rd
-               sm
-               ghi      ra
-               str      r2
-               smb
-               lbdf     notlowest      ; jump if not lowest address
-               call7    store_ra       ; write new lowest address
-               dw       lowest
-notlowest:     call7    load_rd        ; get highest address
-               dw       highest
-               glo      rd             ; subtract highest from address
+               glo      rd             ; subtract address from lowest
                str      r2
                glo      ra
                sm
                ghi      rd
                str      r2
                ghi      ra
+               smb
+               lbdf     notlowest      ; jump if not lowest address
+               call7    store_ra       ; write new lowest address
+               dw       lowest
+notlowest:     call7    load_rd        ; get highest address
+               dw       highest
+               glo      ra             ; subtract highest from address
+               str      r2
+               glo      rd
+               sm
+               ghi      ra
+               str      r2
+               ghi      rd
                smb
                lbdf     nothighest     ; jump if not highest address
                call7    store_ra       ; write new highest address
@@ -582,6 +581,7 @@ exists_10:     call     o_inmsg        ; print error message
 next_11:       ldn      rf             ; get first character of line
                smi      '?'            ; check for unknown symbol marker
                lbnz     next_12        ; jump if not
+               inc      rf             ; move past '?'
                call7    load_d         ; need to see if in module
                dw       loadmodule
                lbz      next_12        ; jump if not
@@ -622,6 +622,7 @@ noproc_11:     mov      rf,buffer2     ; point to reference name
 next_12:       ldn      rf             ; get first character of line
                smi      '/'            ; check for unknown high symbol marker
                lbnz     next_13        ; jump if not
+               inc      rf             ; move past '/'
                call7    load_d         ; need to see if in module
                dw       loadmodule
                lbz      next_13        ; jump if not
@@ -662,6 +663,7 @@ noproc_12:     mov      rf,buffer2     ; point to reference name
 next_13:       ldn      rf             ; get first character of line
                smi      '\'            ; check for unknown high symbol marker
                lbnz     next_14        ; jump if not
+               inc      rf             ; move past '\'
                call7    load_d         ; need to see if in module
                dw       loadmodule
                lbz      next_14        ; jump if not
@@ -702,13 +704,14 @@ noproc_13:     mov      rf,buffer2     ; point to reference name
 next_14:       ldn      rf             ; get first character of line
                smi      '{'            ; check for beginning of proc marker
                lbnz     next_15        ; jump if not
+               inc      rf             ; move past '{'
                mov      rd,buffer2     ; need to copy symbol name
 loop_14:       lda      rf             ; get byte from name
                str      rd             ; write to buffer
                inc      rd
                lbz      term_14        ; jump if terminator encountered
                smi      32             ; was a space written
-               lbnz     loop_13        ; loop until a space encountered
+               lbnz     loop_14        ; loop until a space encountered
 term_14:       dec      rd             ; terminate string
                ldi      0
                str      rd
@@ -785,6 +788,14 @@ next_16:       call     o_inmsg        ; print error message
                call     o_type         ; output it
                call     crlf           ; output cr/lf
                smi      0              ; indicate error
+               rtn                     ; and return to caller
+
+; +++++++++++++++++++++++++++++++++++++++++
+; +++++ File has been completely read +++++
+; +++++++++++++++++++++++++++++++++++++++++
+eof:           mov      rd,fildes1     ; point to fildes
+               call     o_close        ; close the file
+               adi      0              ; indicate successful read
                rtn                     ; and return to caller
 
 addoffset:     call7    load_rd        ; retrieve offset

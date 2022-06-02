@@ -31,5 +31,6 @@ needload:      ghi      ra             ; need to set seek address
                dec      rd             ; move to beginning of fildes
                dec      rd
                call     o_seek         ; perform file seek
+               rtn                     ; return to caller
 
                endp

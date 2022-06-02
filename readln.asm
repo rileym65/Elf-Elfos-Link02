@@ -21,6 +21,7 @@
                plo      ra
 loop:          glo      ra             ; do we have characters to read
                lbz      readfile       ; read more if not
+               dec      ra             ; decrement byte count
                lda      r9             ; get next byte
                plo      re             ; keep a copy
                smi      10             ; check for line ending
@@ -29,8 +30,8 @@ loop:          glo      ra             ; do we have characters to read
                lbz      lineend
                glo      re             ; recover character
                str      rf             ; write into return buffer
+               inc      rf
                inc      rc             ; increment bytes read
-               dec      ra             ; decrement byte count
                lbr      loop           ; loop until line ending
 lineend:       glo      rc             ; have we read any bytes
                lbz      loop           ; if not, then ignore and keep reading
