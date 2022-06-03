@@ -26,6 +26,7 @@ findend:       lda      rd             ; find end
                lbnz     findend        ; loop if terminator not found
                inc      rd             ; move past value field
                inc      rd
+               inc      rd             ; move past low byte offset
                inc      rd             ; move past type field
                lbr      loop           ; check next entry
 tableend:      adi      0              ; signal entry not found
@@ -34,6 +35,7 @@ found:         lda      rd             ; retrieve entry value
                phi      ra             ; into RA
                lda      rd
                plo      ra
+               lda      rd             ; retrieve low byte offset (ignored)
                lda      rd             ; get type
                plo      re             ; save a copy
                smi      'X'            ; check for used require

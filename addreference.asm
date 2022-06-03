@@ -3,6 +3,7 @@
 ; ***** Find symbol value                    *****
 ; ***** RF - pointer to symbol               *****
 ; ***** RD - reference value                 *****
+; ***** RB.0 - Low byte offset               *****
 ; *****  D - reference type                  *****
 ; ************************************************
                proc     addreference
@@ -24,6 +25,9 @@ loop:          lda      rf             ; get byte from symbol
                glo      rd
                str      ra
                inc      ra
+               glo      rb             ; write low byte offset
+               str      ra
+               inc      ra
                ldn      r2             ; recover reference type
                str      ra             ; write to reference table
                inc      ra
@@ -37,6 +41,7 @@ loop:          lda      rf             ; get byte from symbol
 ; reference table structure
 ; n-bytes - Name of reference
 ; 2-bytes - Address 
+; 1-byte  - Low byte offset
 ; 1-btye  - Type
 ;           W - word reference
 ;           H - high byte reference

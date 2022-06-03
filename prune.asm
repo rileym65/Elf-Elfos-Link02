@@ -20,6 +20,7 @@ eloop:         lda      rf             ; find terminator for entry name
                lbnz     eloop          ; loop until terminator found
                inc      rf             ; move past address
                inc      rf
+               inc      rf             ; move past low byte offset
                lda      rf             ; get type
                smi      '*'            ; check if cleared
                lbz      empty          ; do not copy this entry
@@ -28,7 +29,10 @@ copyloop:      lda      rf             ; read from entry name
                str      rd             ; store into destination
                inc      rd
                lbnz     copyloop       ; loop until terminator copied
-               lda      rf             ; copy next 3 bytes
+               lda      rf             ; copy next 4 bytes
+               str      rd
+               inc      rd
+               lda      rf
                str      rd
                inc      rd
                lda      rf

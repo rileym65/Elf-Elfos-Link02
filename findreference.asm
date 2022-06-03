@@ -5,6 +5,7 @@
 ; ***** Returns: DF=1 - Entry found          *****
 ; *****          DF=0 - Entry not found      *****
 ; *****          RA   - Value field of entry *****
+; *****          RB.1 - Low byte offset      *****
 ; ************************************************
                proc     findreference
 
@@ -26,6 +27,7 @@ findend:       lda      rd             ; find end
                lbnz     findend        ; loop if terminator not found
                inc      rd             ; move past value field
                inc      rd
+               inc      rd             ; move past low byte offset
                inc      rd             ; move past type field
                lbr      loop           ; check next entry
 tableend:      adi      0              ; signal entry not found
@@ -34,6 +36,8 @@ found:         lda      rd             ; retrieve entry value
                phi      ra             ; into RA
                lda      rd
                plo      ra
+               lda      rd             ; retrieve low byte offset
+               plo      rb
                lda      rd             ; get reference type
                plo      re             ; keep a copy
                smi      'R'            ; is it a require?

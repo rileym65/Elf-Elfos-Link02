@@ -37,6 +37,8 @@ sloop:         lda      rb             ; get byte from symbol name
                phi      ra
                lda      rb
                plo      ra
+               lda      rb             ; retrieve low byte offset
+               plo      r9             ; set it here
                lda      rb             ; get type
                plo      re             ; keep a copy of type
                smi      'R'            ; is it a requires
@@ -70,7 +72,12 @@ linkbyte:      stxd                    ; store it
                add
                call     writememb      ; write new value back
                lbr      entrydone      ; done with entry
-linkhigh:      ghi      rd             ; want high of symbol value
+linkhigh:      glo      r9             ; add lsb offset to address
+               str      r2
+               glo      rd
+               add
+               ghi      rd
+               adci     0
                lbr      linkbyte       ; then process byte
 linkword:      push     rd             ; save value
                call     readmem        ; read word at address

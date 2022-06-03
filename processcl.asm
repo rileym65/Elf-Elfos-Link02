@@ -49,7 +49,8 @@ filenmlp:      lda      ra             ; get next byte from CL
                inc      rf
                inc      rc             ; increment character count
                lbr      filenmlp       ; loop until name copied
-filenmdn:      ldi      0              ; terminate name
+filenmdn:      dec      ra             ; move back to non-name byte
+               ldi      0              ; terminate name
                str      rf
                mov      rb,outname     ; see if an outname exists
                ldn      rb             ; retrieve first byte
@@ -194,7 +195,8 @@ lib_nmlp:      lda      ra             ; get byte from cl
                inc      rf
                inc      rc             ; increment character count
                lbr      lib_nmlp       ; loop until name retrieved
-lib_nmdn:      glo      rc             ; where characters found
+lib_nmdn:      dec      ra             ; move back to non-entry byte
+               glo      rc             ; where characters found
                lbz      loop           ; ignore -l if no name found
                ldi      0              ; terminate name
                str      rf
@@ -232,12 +234,15 @@ obj_nmlp:      lda      ra             ; get byte from cl
                inc      rf
                inc      rc             ; increment character count
                lbr      obj_nmlp       ; loop until name retrieved
-obj_nmdn:      glo      rc             ; where characters found
+obj_nmdn:      dec      ra             ; move back to non entry byte
+               glo      rc             ; where characters found
                lbz      loop           ; ignore -l if no name found
                ldi      0              ; terminate name
                str      rf
                lbr      loop           ; then process next arg
 
 done:          rtn
+
+               public   fileerr
 
                endp

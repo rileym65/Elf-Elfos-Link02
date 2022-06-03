@@ -15,9 +15,10 @@
 
                lda      rf             ; get byte from first string
                call     chartoupper    ; make sure it is uppercase
-               str      r2             ; store for compare
+               stxd                    ; store for compare
                lda      rd             ; get byte from second string
                call     chartoupper    ; make sure it is uppercase
+               irx
                sm                      ; compare
                lbnz     bad            ; jump if no match
                dec      rc             ; decrement characters to compare

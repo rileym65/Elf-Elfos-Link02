@@ -13,17 +13,29 @@
                extrn    buffer2
                extrn    cmp
                extrn    crlf
+               extrn    ctrldta
                extrn    ctrlfildes
+               extrn    fileerr
+               extrn    load_rf
                extrn    loadfile
+               extrn    microint
+               extrn    objcount
                extrn    outmode
                extrn    outname
                extrn    set_byte
+               extrn    store_rf
                extrn    strcasecmp
                extrn    strncasecmp
                extrn    trim
 
                push     rf             ; save filename pointer
-               mov      rd,ctrlfildes  ; point to fildes for control file
+               mov      rd,ctrlfildes+4  ; Need to setup DTA for control fildes
+               ldi      ctrldta.1
+               str      rd
+               inc      rd
+               ldi      ctrldta.0
+               str      rd
+               mov      rd,ctrlfildes  ; Need to point to control file fildes
                mov      r7,0           ; nothing special on open
                call     o_open         ; open file
                lbnf     opened
@@ -192,6 +204,12 @@ add_dn:        ldi      0              ; need a terminator
                str      rd
                mov      rf,buffer2     ; point to library name
                call     loadfile       ; and load file
+               lbdf     fileerr        ; jump if error
+               call7    load_rf        ; get object file count
+               dw       objcount
+               inc      rf             ; increment it
+               call7    store_rf       ; and put it back
+               dw       objcount
                lbr      loop           ; process next line
 
 eof:           mov      rd,ctrlfildes  ; point to fildes for control file
@@ -209,11 +227,12 @@ readln_lp:     push     rf             ; save buffer position
                mov      rd,ctrlfildes  ; point to fildes
                mov      rc,1           ; read 1 byte
                call     o_read         ; call Elf/OS to read byte
-               lbdf     fileerr        ; jump if read error occurred
+               lbdf     cfileerr       ; jump if read error occurred
+               mov      r7,microint    ; reset R7
                glo      rc             ; were bytes read
                lbz      readln_eof     ; jump if not
                irx                     ; recover saved data
-               ldxa
+               ldx
                plo      rc
                pop      rf
                mov      ra,buffer2     ; get read byte
@@ -240,7 +259,7 @@ readln_eof:    irx                     ; remove items from stack
                smi      0              ; signal end of file
                rtn                     ; and return
 
-fileerr:       call     o_inmsg        ; display error message
+cfileerr:      call     o_inmsg        ; display error message
                db       'Error: Error reading control file',10,13,0
                lbr      o_wrmboot      ; return to Elf/OS
 

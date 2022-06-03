@@ -628,7 +628,9 @@ loop_11:       lda      rf             ; get byte from name
                ghi      rd
                adc
                phi      rd
-noproc_11:     mov      rf,buffer2     ; point to reference name
+noproc_11:     ldi      0              ; no lsb offset
+               plo      rb
+               mov      rf,buffer2     ; point to reference name
                ldi      'W'            ; reference type is word
                call     addreference   ; add to reference list
                lbr      loop           ; then process next line
@@ -670,6 +672,8 @@ loop_12:       lda      rf             ; get byte from name
                adc
                phi      rd
 noproc_12:     mov      rf,buffer2     ; point to reference name
+               ldi      0              ; TODO need real lsb offset
+               plo      rb
                ldi      'H'            ; reference type is high byte
                call     addreference   ; add to reference list
                lbr      loop           ; then process next line
@@ -711,6 +715,8 @@ loop_13:       lda      rf             ; get byte from name
                adc
                phi      rd
 noproc_13:     mov      rf,buffer2     ; point to reference name
+               ldi      0              ; no lsb offset
+               plo      rb
                ldi      'L'            ; reference type is low byte
                call     addreference   ; add to reference list
                lbr      loop           ; then process next line

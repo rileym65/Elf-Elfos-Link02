@@ -19,6 +19,7 @@ eloop:         lda      rd             ; look for name terminator
                lbnz     eloop
                inc      rd             ; move past address
                inc      rd
+               inc      rd             ; move past low byte offset
                lda      rd             ; get type
                call7    cmp            ; check low byte
                db       'L'
