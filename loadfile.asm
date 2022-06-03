@@ -504,6 +504,19 @@ next_8:        ldn      rf             ; get first character of line
                str      r2
                ghi      rd
                adc
+               phi      rd
+               push     rd             ; save this for now
+               call     trim           ; move past any spaces
+               call     gethex         ; get lsb offset if it exists
+               pop      rb             ; recover address
+               glo      rb             ; add with lsb offset
+               str      r2
+               glo      rd
+               add
+               ghi      rb
+               str      r2
+               ghi      rd
+               adc
                call     writememb      ; write value back to memory
                lbr      loop           ; then process next line
 
