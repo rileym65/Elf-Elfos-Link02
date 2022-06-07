@@ -25,8 +25,7 @@
                adci     0
                phi      rd
                ldn      rd             ; retrieve flags
-               ori      0e1h           ; mark sector as modified
-;               ori      011h           ; mark sector as modified
+               ori      011h           ; mark sector as modified
                str      rd             ; put it back
                irx                     ; recover value to write
                ldx

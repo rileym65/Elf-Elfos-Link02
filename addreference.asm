@@ -49,21 +49,3 @@ loop:          lda      rf             ; get byte from symbol
 ;           R - requires
 ;           X - used requires
 
-; void addReference(char* name, word value, char typ) {
-;   numReferences++;
-;   if (numReferences == 1) {
-;     references = (char**)malloc(sizeof(char*));
-;     addresses = (word*)malloc(sizeof(word));
-;     types = (char*)malloc(sizeof(char));
-;     }
-;   else {
-;     references = (char**)realloc(references,sizeof(char*)*numReferences);
-;     addresses = (word*)realloc(addresses,sizeof(word)*numReferences);
-;     types = (char*)realloc(types,sizeof(char)*numReferences);
-;     }
-;   references[numReferences-1] = (char*)malloc(strlen(name) + 1);
-;   strcpy(references[numReferences-1], name);
-;   addresses[numReferences-1] = value;
-;   types[numReferences-1] = typ;
-;   }
-

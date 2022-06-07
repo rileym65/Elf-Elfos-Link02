@@ -191,4 +191,7 @@ mapfile:       db       'map.tmp',0
 
                rtn
 
+               public   vramfile
+               public   mapfile
+
                endp

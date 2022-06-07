@@ -36,7 +36,6 @@ OBJS = \
 	setup.prg \
 	setvram.prg \
 	showunres.prg \
-	start.prg \
 	strcasecmp.prg \
         strcat.prg \
 	strcmp.prg \
@@ -51,7 +50,7 @@ OBJS = \
 
 .SUFFIXES: .asm .prg
 
-link02.bin: $(OBJS) link02.link
+link02.bin: $(OBJS) link02.link start.asm
 	asm02 -l -L start.asm
 	link02 -s @link02.link
 
@@ -100,7 +99,6 @@ setmap.prg:        macros.inc setmap.asm
 setup.prg:         macros.inc setup.asm
 setvram.prg:       macros.inc setvram.asm
 showunres.prg:     macros.inc showunres.asm
-start.prg:         macros.inc start.asm
 strcasecmp.prg:    macros.inc strcasecmp.asm
 strcat.prg:        macros.inc strcat.asm
 strcmp.prg:        macros.inc strcmp.asm
