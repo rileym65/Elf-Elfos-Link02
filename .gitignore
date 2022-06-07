@@ -1,6 +1,8 @@
+*.l
 *.lst
 *.prg
 *.bin
 *.hex
 *.build
+*.swp
 
