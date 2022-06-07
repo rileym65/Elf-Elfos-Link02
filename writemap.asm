@@ -6,6 +6,7 @@
 ; ***************************************************
                proc     writemap
 
+               extrn    mapfildes
                extrn    setmap
 
                push     ra             ; save address register
@@ -30,12 +31,7 @@ done:          glo      re             ; get mask
                ldn      ra             ; get byte from mask
                or                      ; combine with mask
                str      ra             ; and write back to map
-               glo      rd             ; move to fildes flags byts
-               adi      8
-               plo      rd
-               ghi      rd
-               adci     0
-               phi      rd
+               mov      rd,mapfildes+8 ; Point to flags byte of fildes
                ldn      rd             ; retrieve flags
                ori      011h           ; mark sector as modified
                str      rd             ; put it back

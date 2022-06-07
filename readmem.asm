@@ -8,11 +8,13 @@
                proc     readmem
 
                extrn    addressmode
+               extrn    microint
                extrn    setvram
                extrn    load_d
 
                push     ra             ; save address
                call     setvram        ; setup for VRAM read
+               mov      r7,microint
                call7    load_d         ; need to get address mode
                dw       addressmode
                smi      'L'            ; check for little endian

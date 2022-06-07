@@ -8,10 +8,13 @@
 ; ****************************************************
                proc     checkvram
 
+               extrn    microint
                extrn    vramfildes
 
                mov      rd,vramfildes+2  ; point to VRAM fildes + 2
                ldn      rd             ; get high word pos byte
+               dec      rd             ; move to beginning of fildes
+               dec      rd
                ani      0feh           ; 512 byte boundary
                str      r2             ; store for comparison
                ghi      ra             ; get high of address
@@ -28,9 +31,8 @@ needload:      ghi      ra             ; need to set seek address
                plo      r8
                plo      rc             ; seek from beginning
                phi      rc
-               dec      rd             ; move to beginning of fildes
-               dec      rd
                call     o_seek         ; perform file seek
+               mov      r7,microint    ; reset R7
                rtn                     ; return to caller
 
                endp

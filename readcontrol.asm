@@ -47,6 +47,7 @@
                lbr      o_wrmboot      ; return to Elf/OS
 opened:        irx                     ; remove filename pointer
                irx
+               mov      r7,microint    ; be sure R7 is correct
 loop:          call     readln         ; read next line
                lbdf     eof            ; jump if end of file
 

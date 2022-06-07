@@ -95,6 +95,7 @@ ctrlnmlp:      lda      ra             ; get next byte from CL
                lbr      ctrlnmlp       ; loop until name copied
 ctrlnmdn:      ldi      0              ; terminate name
                str      rf
+               dec      ra             ; move back to non-name byte
                push     ra             ; save comand line position
                mov      rf,buffer      ; point to filename
                call     readcontrol    ; read control file

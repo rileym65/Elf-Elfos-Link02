@@ -10,12 +10,6 @@
                extrn    checkmap
                extrn    map
 
-               push     ra             ; save address
-               call     checkmap       ; be sure correct page is loaded
-               pop      ra             ; recover address
-               ghi      ra             ; clear high bits
-               ani      01fh           ; to keep address to 8192 bytes
-               phi      ra
                ldi      3              ; need to divide address by 8
                plo      re
 loop:          ghi      ra             ; divide by 2
@@ -27,6 +21,12 @@ loop:          ghi      ra             ; divide by 2
                dec      re             ; decrement count
                glo      re             ; see if done
                lbnz     loop           ; loop until divided by 8
+               push     ra             ; save address
+               call     checkmap       ; be sure correct page is loaded
+               pop      ra             ; recover address
+               ghi      ra             ; clear high bits
+               ani      001h           ; keep lower 512 bytes
+               phi      ra
                ldi      map.0          ; add in map address
                str      r2
                glo      ra

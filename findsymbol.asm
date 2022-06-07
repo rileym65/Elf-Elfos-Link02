@@ -17,7 +17,9 @@
 loop:          ldn      rd             ; get byte from table
                lbz      tableend       ; jump if at table end
                push     rf             ; save search string
+               push     rd             ; save table entry
                call     strcmp         ; compare entry
+               pop      rd
                pop      rf             ; recover search string
                lbdf     found          ; jump if entry found
 findend:       lda      rd             ; find end
@@ -27,7 +29,9 @@ findend:       lda      rd             ; find end
                lbr      loop           ; check next entry
 tableend:      adi      0              ; signal entry not found
                rtn                     ; and return
-found:         lda      rd             ; retrieve entry value
+found:         lda      rd             ; move past name
+               lbnz     found
+               lda      rd             ; retrieve entry value
                phi      ra             ; into RA
                lda      rd
                plo      ra

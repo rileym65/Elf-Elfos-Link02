@@ -85,7 +85,7 @@
                str      rf
                call7    store_rf       ; write symbol table end address
                dw       symbols
-               mov      rf,freemem     ; free memory address
+               mov      rf,freemem+1   ; free memory address
                ldi      0              ; write terminator to references
                str      rf
                call7    store_rf       ; write reference table address

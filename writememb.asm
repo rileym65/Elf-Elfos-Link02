@@ -8,6 +8,7 @@
                proc     writememb
 
                extrn    setvram
+               extrn    vramfildes
 
                plo      re             ; save value during pushes
                push     ra             ; save consumed registers
@@ -15,6 +16,7 @@
                push     r7
                glo      re
                stxd                    ; save value
+               mov      rd,vramfildes
                call     setvram        ; setup VRAM for write
                glo      rd             ; move to fildes flags byts
                adi      8
@@ -23,7 +25,8 @@
                adci     0
                phi      rd
                ldn      rd             ; retrieve flags
-               ori      011h           ; mark sector as modified
+               ori      0e1h           ; mark sector as modified
+;               ori      011h           ; mark sector as modified
                str      rd             ; put it back
                irx                     ; recover value to write
                ldx
