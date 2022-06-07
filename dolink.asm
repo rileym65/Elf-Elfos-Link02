@@ -90,7 +90,7 @@ linkword:      push     rd             ; save value
                ghi      rb
                str      r2
                ghi      rd
-               adc      rd
+               adc
                phi      rd             ; RD now has corrected value
                call     writemem       ; write it back
 entrydone:     pop      rf             ; get address to next entry
